@@ -1,5 +1,6 @@
 var child_process = require('child_process');
 var _ = require('lodash');
+var async = require('async');
 
 var nip = module.exports = {
     chain: [],
@@ -80,13 +81,18 @@ nip.print = function print() {
     });
 };
     
-nip.apply = function apply(options, cb) {
+nip.apply = function apply(cb) {
     var self = this;
 
     self._set_policies();
-    _.each(self.chain, function (link){
-        child_process.spawn(self.executable, link);
+    async.eachSeries(self.chain, function (link, eachCallback){
+	var command = [self.executable, link.join(" ")].join(" ");
+        child_process.exec(command, function(err) {
+            eachCallback(err); 
+        });
+    }, function(err) {
+	if(err)
+           console.log(err);
+        cb(err);
     });
-
-    cb();
 };
