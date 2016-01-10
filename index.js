@@ -83,6 +83,7 @@ nip.print = function print() {
     
 nip.apply = function apply(cb) {
     var self = this;
+    cb = cb || function() {};
 
     self._set_policies();
     async.eachSeries(self.chain, function (link, eachCallback){
@@ -91,8 +92,6 @@ nip.apply = function apply(cb) {
             eachCallback(err); 
         });
     }, function(err) {
-	if(err)
-           console.log(err);
         cb(err);
     });
 };
