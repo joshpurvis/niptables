@@ -9,7 +9,6 @@
   "author": "Josh Purvis",
   "license": "MIT",
   "dependencies": {
-    "async": "^1.5.2",
     "lodash": "^3.10.1"
   }
 }

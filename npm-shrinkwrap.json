@@ -2,11 +2,6 @@
   "name": "niptables",
   "version": "0.0.1",
   "dependencies": {
-    "async": {
-      "version": "1.5.2",
-      "from": "async@",
-      "resolved": "https://registry.npmjs.org/async/-/async-1.5.2.tgz"
-    },
     "lodash": {
       "version": "3.10.1",
       "from": "lodash@",

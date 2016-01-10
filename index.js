@@ -3,24 +3,36 @@ var _ = require('lodash');
 
 var nip = module.exports = {
     chain: [],
-    executable: 'iptables',
-    _defaultDeny: false,
-    _flush: false
+    executable: 'iptables'
 };
 
-nip.flush = function flush() {
-    this._flush = true;
-    return this;
-};
+nip._set_policies = function policies() {
+    self = this;
 
-nip.defaultDeny = function defaultDeny() {
-    this._defaultDeny = true;
-    return this;
+    // allow all outgoing traffic on any interface (+ wildcard), force to top of table (-I)
+    self.chain.push(['-I OUTPUT -o + -d 0.0.0.0/0 -j ACCEPT']);
+    self.chain.push(['-I INPUT -i + -m state --state ESTABLISHED,RELATED -j ACCEPT']);
+
+    // allow traffic on loopback interface
+    self.chain.unshift(['-A INPUT -i lo -j ACCEPT']);
+    self.chain.unshift(['-A OUTPUT -o lo -j ACCEPT']);
+
+    // default INPUT policy
+    self.chain.unshift(['--policy INPUT DROP']);
+
+    // set default output and forward policies to ACCEPT
+    self.chain.unshift(['--policy OUTPUT ACCEPT']);
+    self.chain.unshift(['--policy FORWARD ACCEPT']);
+
+    // Flush existing tables
+    self.chain.unshift(['-F']); 
+    
 };
 
 nip.allow = function allow(options) {
-
-    var options = _.merge(options, {
+    var self = this;
+    
+    var options = _.defaults(options, {
         'protocol': 'tcp',
         'port': null,
         'cidr_blocks': ['0.0.0.0/0']
@@ -31,33 +43,49 @@ nip.allow = function allow(options) {
 
     _.each(options.cidr_blocks, function(cidr_block) {
         
-        var rule = [
+        var inRule = [
             '-A INPUT',
             ['--protocol', options.protocol].join(" "),
             ['--dport', options.port].join(" "),
-            ['--source', cidr_block].join(" "),
-            ['-m conntrack'],
-            ['--ctstate NEW,ESTABLISHED'],
-            ['-j ACCEPT']
+            ['--destination', cidr_block].join(" "),
+            '--match state',
+            '--state NEW,ESTABLISHED',
+            '-j ACCEPT'
         ];
 
-        this.chain.push(rule);
+        var outRule = [
+            '-A OUTPUT',
+            ['--protocol', options.protocol].join(" "),
+            ['--sport', options.port].join(" "),
+            ['--source', cidr_block].join(" "),
+            '--match state',
+            '--state ESTABLISHED',
+            '-j ACCEPT'
+        ];
 
-    };
+        self.chain.push(inRule);
+        self.chain.push(outRule);
 
-    return this;    
+    });
+
+    return self;    
 };
 
+nip.print = function print() {
+    var self = this;
+
+    self._set_policies();
+    _.each(self.chain, function (link){
+        console.log([self.executable, link.join(" ")].join(" "));
+    });
+};
+    
 nip.apply = function apply(options, cb) {
+    var self = this;
 
-    if (this.flush)
-        this.chain.unshift(['-F']); // Flush existing tables
-
-    if (this.defaultDeny)
-        this.chain.push(['-P INPUT DROP']); // Drop any packets that slip through the defined rules
-
-    async.mapSeries(this.chain, function (link){
-        child_process.spawn(this.executable, link);
+    self._set_policies();
+    _.each(self.chain, function (link){
+        child_process.spawn(self.executable, link);
     });
 
     cb();
