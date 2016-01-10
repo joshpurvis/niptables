@@ -48,7 +48,7 @@ nip.allow = function allow(options) {
             '-A INPUT',
             ['--protocol', options.protocol].join(" "),
             ['--dport', options.port].join(" "),
-            ['--destination', cidr_block].join(" "),
+            ['--source', cidr_block].join(" "),
             '--match state',
             '--state NEW,ESTABLISHED',
             '-j ACCEPT'
@@ -58,7 +58,7 @@ nip.allow = function allow(options) {
             '-A OUTPUT',
             ['--protocol', options.protocol].join(" "),
             ['--sport', options.port].join(" "),
-            ['--source', cidr_block].join(" "),
+            ['--destination', cidr_block].join(" "),
             '--match state',
             '--state ESTABLISHED',
             '-j ACCEPT'
@@ -87,7 +87,7 @@ nip.apply = function apply(cb) {
 
     self._set_policies();
     async.eachSeries(self.chain, function (link, eachCallback){
-	var command = [self.executable, link.join(" ")].join(" ");
+    var command = [self.executable, link.join(" ")].join(" ");
         child_process.exec(command, function(err) {
             eachCallback(err); 
         });
