@@ -11,5 +11,9 @@
   "dependencies": {
     "async": "^1.5.2",
     "lodash": "^3.10.1"
+  },
+  "repository": {
+      "type": "git",
+      "url": "git://github.com/joshpurvis/niptables.git"
   }
 }
