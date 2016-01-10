@@ -5,7 +5,7 @@ Simple but opinionated manipulation of iptables for securing a server
 
 **CAUTION: This sets a default DROP policy on any incoming packets. Make sure to properly allow your ssh port, or you may lock yourself out of your server**
 
-```
+```js
 var nip = require('niptables');
 
 nip
@@ -28,7 +28,7 @@ nip
 
 For debugging you can terminate with `print()` instead of `apply(cb)` to see the exact rules that will be applied:
 
-```
+```js
 nip
     .allow({'port': '22'})  // Allow ssh from anywhere (tcp from '0.0.0.0/0')
     .print();
