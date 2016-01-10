@@ -1,7 +1,17 @@
 
-### niptables
+# niptables
+
+### overview
 
 Simple but opinionated manipulation of iptables for securing a server
+
+### installation
+
+```
+npm install niptables
+```
+
+### documentation
 
 **CAUTION: This sets a default DROP policy on any incoming packets. Make sure to properly allow your ssh port, or you may lock yourself out of your server**
 
@@ -49,4 +59,4 @@ iptables -I OUTPUT -o + -d 0.0.0.0/0 -j ACCEPT
 iptables -I INPUT -i + -m state --state ESTABLISHED,RELATED -j ACCEPT
 ```
 
-Notice that rules for all loopback traffic and all external traffic are added by default
+Notice that rules for all loopback traffic and all outgoing traffic are added by default
