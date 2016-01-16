@@ -26,6 +26,10 @@ nip
         'cidr_blocks': ['10.0.0.0/16']  // or a list of explicit cidr blocks
     })
     .allow({
+        'interface': 'eth0',  // allow traffic on eth0 interface
+        'port': '9999'
+    })
+    .allow({
         'port': '8000:8001'  // also can specify a range of ports
     })
     .apply(function(err){
@@ -60,3 +64,4 @@ iptables -I INPUT -i + -m state --state ESTABLISHED,RELATED -j ACCEPT
 ```
 
 Notice that rules for all loopback traffic and all outgoing traffic are added by default
+
