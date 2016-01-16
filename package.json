@@ -1,6 +1,6 @@
 {
   "name": "niptables",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Easy cross-platform iptables manipulation",
   "main": "index.js",
   "scripts": {
